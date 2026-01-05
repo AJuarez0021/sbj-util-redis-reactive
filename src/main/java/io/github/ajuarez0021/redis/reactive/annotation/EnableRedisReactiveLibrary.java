@@ -21,7 +21,13 @@ import java.lang.annotation.Target;
 @Documented
 @Import(CacheConfig.class)
 public @interface EnableRedisReactiveLibrary {
-
+    /**
+     * Database.
+     * Only for sentinel and standalone mode
+     *
+     * @return The database
+     */
+    int database() default 0;
     /**
      * Hosts.
      *

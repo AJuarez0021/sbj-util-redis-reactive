@@ -156,7 +156,6 @@ public class CacheConfig implements ImportAware {
      *
      * @return the redis standalone configuration
      */
-    @Bean
     RedisStandaloneConfiguration createStandaloneConfig() {
         List<HostsDto> hosts = getHostEntries();
         Validator.validateStandaloneHosts(hosts);
@@ -167,7 +166,7 @@ public class CacheConfig implements ImportAware {
 
         String userName = attributes.getString(ATTRIBUTE_USER_NAME);
         String pwd = attributes.getString("pwd");
-
+        redisConfig.setDatabase(attributes.getNumber("database"));
         if (StringUtils.hasText(userName)) {
             redisConfig.setUsername(userName);
         }
@@ -184,7 +183,6 @@ public class CacheConfig implements ImportAware {
      *
      * @return the redis cluster configuration
      */
-    @Bean
     RedisClusterConfiguration createClusterConfig() {
         List<HostsDto> hosts = getHostEntries();
         Validator.validateClusterHosts(hosts);
@@ -211,7 +209,6 @@ public class CacheConfig implements ImportAware {
      *
      * @return the redis sentinel configuration
      */
-    @Bean
     RedisSentinelConfiguration createSentinelConfig() {
         String sentinelMaster = attributes.getString("sentinelMaster");
         List<HostsDto> hosts = getHostEntries();
@@ -224,6 +221,7 @@ public class CacheConfig implements ImportAware {
         }
         String userName = attributes.getString(ATTRIBUTE_USER_NAME);
         String pwd = attributes.getString("pwd");
+        sentinelConfig.setDatabase(attributes.getNumber("database"));
         if (StringUtils.hasText(userName)) {
             sentinelConfig.setSentinelUsername(userName);
         }

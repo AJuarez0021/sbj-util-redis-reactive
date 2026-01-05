@@ -54,6 +54,7 @@ class CacheConfigTest {
 		attributes.put("hostEntries", createHostEntries(new String[] { "localhost" }, new int[] { 6379 }));
 		attributes.put("userName", "");
 		attributes.put("pwd", "");
+        attributes.put("database", 0);
 
 		when(mockMetadata.getAnnotationAttributes(EnableRedisReactiveLibrary.class.getName())).thenReturn(attributes);
 
@@ -77,6 +78,7 @@ class CacheConfigTest {
 		attributes.put("hostEntries", createHostEntries(new String[] { "localhost" }, new int[] { 6379 }));
 		attributes.put("userName", "testuser");
 		attributes.put("pwd", "testpass");
+        attributes.put("database", 0);
 
 		when(mockMetadata.getAnnotationAttributes(EnableRedisReactiveLibrary.class.getName())).thenReturn(attributes);
 
@@ -149,6 +151,7 @@ class CacheConfigTest {
 		attributes.put("sentinelMaster", "mymaster");
 		attributes.put("userName", "");
 		attributes.put("pwd", "");
+        attributes.put("database", 0);
 
 		when(mockMetadata.getAnnotationAttributes(EnableRedisReactiveLibrary.class.getName())).thenReturn(attributes);
 
@@ -174,6 +177,7 @@ class CacheConfigTest {
 		attributes.put("sentinelMaster", "mymaster");
 		attributes.put("userName", "sentuser");
 		attributes.put("pwd", "sentpass");
+        attributes.put("database", 0);
 
 		when(mockMetadata.getAnnotationAttributes(EnableRedisReactiveLibrary.class.getName())).thenReturn(attributes);
 
@@ -202,6 +206,7 @@ class CacheConfigTest {
 		attributes.put("useSsl", false);
 		attributes.put("connectionTimeout", 5000L);
 		attributes.put("readTimeout", 3000L);
+        attributes.put("database", 0);
 
 		when(mockMetadata.getAnnotationAttributes(EnableRedisReactiveLibrary.class.getName())).thenReturn(attributes);
 
@@ -229,6 +234,7 @@ class CacheConfigTest {
 		attributes.put("useSsl", false);
 		attributes.put("connectionTimeout", 5000L);
 		attributes.put("readTimeout", 3000L);
+        attributes.put("database", 0);
 
 		when(mockMetadata.getAnnotationAttributes(EnableRedisReactiveLibrary.class.getName())).thenReturn(attributes);
 
@@ -258,6 +264,7 @@ class CacheConfigTest {
 		attributes.put("useSsl", false);
 		attributes.put("connectionTimeout", 5000L);
 		attributes.put("readTimeout", 3000L);
+        attributes.put("database", 0);
 
 		when(mockMetadata.getAnnotationAttributes(EnableRedisReactiveLibrary.class.getName())).thenReturn(attributes);
 
@@ -284,6 +291,7 @@ class CacheConfigTest {
 		attributes.put("useSsl", true);
 		attributes.put("connectionTimeout", 5000L);
 		attributes.put("readTimeout", 3000L);
+        attributes.put("database", 0);
 
 		when(mockMetadata.getAnnotationAttributes(EnableRedisReactiveLibrary.class.getName())).thenReturn(attributes);
 
@@ -311,6 +319,7 @@ class CacheConfigTest {
 		attributes.put("connectionTimeout", 5000L);
 		attributes.put("readTimeout", 3000L);
 		attributes.put("mapperConfig", DefaultObjectMapperConfig.class);
+        attributes.put("database", 0);
 
 		when(mockMetadata.getAnnotationAttributes(EnableRedisReactiveLibrary.class.getName())).thenReturn(attributes);
 
@@ -382,6 +391,7 @@ class CacheConfigTest {
 		attributes.put("useSsl", false);
 		attributes.put("connectionTimeout", null);
 		attributes.put("readTimeout", 3000L);
+        attributes.put("database", 0);
 
 		when(mockMetadata.getAnnotationAttributes(EnableRedisReactiveLibrary.class.getName())).thenReturn(attributes);
 
@@ -406,6 +416,7 @@ class CacheConfigTest {
 		attributes.put("useSsl", false);
 		attributes.put("connectionTimeout", 5000L);
 		attributes.put("readTimeout", -1L);
+        attributes.put("database", 0);
 
 		when(mockMetadata.getAnnotationAttributes(EnableRedisReactiveLibrary.class.getName())).thenReturn(attributes);
 
@@ -449,6 +460,7 @@ class CacheConfigTest {
 		attributes.put("useSsl", false);
 		attributes.put("connectionTimeout", 5000L);
 		attributes.put("readTimeout", 3000L);
+        attributes.put("database", 0);
 
 		when(mockMetadata.getAnnotationAttributes(EnableRedisReactiveLibrary.class.getName())).thenReturn(attributes);
 
@@ -512,6 +524,7 @@ class CacheConfigTest {
 		attributes.put("mode", Mode.STANDALONE);
 		attributes.put("useSsl", false);
 		attributes.put("connectionTimeout", 0L);
+        attributes.put("database", 0);
 		attributes.put("readTimeout", 3000L);
 
 		when(mockMetadata.getAnnotationAttributes(EnableRedisReactiveLibrary.class.getName())).thenReturn(attributes);
@@ -558,6 +571,7 @@ class CacheConfigTest {
 		attributes.put("readTimeout", 3000L);
 		attributes.put("userName", "");
 		attributes.put("pwd", "");
+        attributes.put("database", 0);
 		attributes.put("mapperConfig", DefaultObjectMapperConfig.class);
 
 		when(mockMetadata.getAnnotationAttributes(EnableRedisReactiveLibrary.class.getName())).thenReturn(attributes);
@@ -583,6 +597,7 @@ class CacheConfigTest {
 		attributes.put("readTimeout", 3000L);
 		attributes.put("userName", "");
 		attributes.put("pwd", "");
+        attributes.put("database", 0);
 		attributes.put("mapperConfig", DefaultObjectMapperConfig.class);
 
 		when(mockMetadata.getAnnotationAttributes(EnableRedisReactiveLibrary.class.getName())).thenReturn(attributes);
@@ -608,6 +623,7 @@ class CacheConfigTest {
 		attributes.put("readTimeout", 3000L);
 		attributes.put("userName", "");
 		attributes.put("pwd", "");
+        attributes.put("database", 0);
 		attributes.put("mapperConfig", DefaultObjectMapperConfig.class);
 
 		when(mockMetadata.getAnnotationAttributes(EnableRedisReactiveLibrary.class.getName())).thenReturn(attributes);

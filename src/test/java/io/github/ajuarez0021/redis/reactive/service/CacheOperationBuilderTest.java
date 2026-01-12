@@ -218,6 +218,24 @@ class CacheOperationBuilderTest {
     }
 
     /**
+     * Cache evict all evicts all entries in cache.
+     */
+    @Test
+    void cacheEvictAll_EvictsAllEntries() {
+        String cacheName = "users";
+
+        when(cacheService.cacheEvictAll(eq(cacheName))).thenReturn(Mono.empty());
+
+        CacheOperationBuilder<String> builder = factory.<String>create()
+                .cacheName(cacheName);
+
+        StepVerifier.create(builder.cacheEvictAll())
+                .verifyComplete();
+
+        verify(cacheService).cacheEvictAll(eq(cacheName));
+    }
+
+    /**
      * Builder supports fluent chaining.
      */
     @Test

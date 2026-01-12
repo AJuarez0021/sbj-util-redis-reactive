@@ -10,11 +10,12 @@ import io.github.ajuarez0021.redis.reactive.service.RedisHealthChecker;
 import io.github.ajuarez0021.redis.reactive.util.Mode;
 import io.github.ajuarez0021.redis.reactive.util.Validator;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
@@ -68,13 +69,14 @@ public class CacheConfig implements ImportAware {
         if (annotationAttrs == null) {
             throw new IllegalStateException(
                     """
-                    Unable to find @EnableRedisReactiveLibrary annotation attributes.
-                    Ensure the annotation is present on a @Configuration class.
+                      Unable to find @EnableRedisReactiveLibrary annotation attributes.
+                      Ensure the annotation is present on a @Configuration class.
                     """);
         }
 
         this.attributes = AnnotationAttributes.fromMap(annotationAttrs);
 
+        Validator.validateAttributes(attributes);
     }
 
     /**
@@ -94,6 +96,7 @@ public class CacheConfig implements ImportAware {
                 ttlsMap.put(key, value);
             }
         }
+
         return new ReactiveCacheManager(ttlsMap);
     }
 
@@ -166,7 +169,7 @@ public class CacheConfig implements ImportAware {
 
         String userName = attributes.getString(ATTRIBUTE_USER_NAME);
         String pwd = attributes.getString("pwd");
-        redisConfig.setDatabase(attributes.getNumber("database"));
+        redisConfig.setDatabase(attributes.getNumber("database").intValue());
         if (StringUtils.hasText(userName)) {
             redisConfig.setUsername(userName);
         }
@@ -200,7 +203,6 @@ public class CacheConfig implements ImportAware {
         if (StringUtils.hasText(pwd)) {
             clusterConfig.setPassword(pwd);
         }
-        clusterConfig.setMaxRedirects(3);
         return clusterConfig;
     }
 
@@ -221,7 +223,7 @@ public class CacheConfig implements ImportAware {
         }
         String userName = attributes.getString(ATTRIBUTE_USER_NAME);
         String pwd = attributes.getString("pwd");
-        sentinelConfig.setDatabase(attributes.getNumber("database"));
+        sentinelConfig.setDatabase(attributes.getNumber("database").intValue());
         if (StringUtils.hasText(userName)) {
             sentinelConfig.setSentinelUsername(userName);
         }
@@ -237,8 +239,8 @@ public class CacheConfig implements ImportAware {
      *
      * @return the reactive redis connection factory
      */
-    @Bean
-    @ConditionalOnMissingBean
+    @Bean("reactiveRedis")
+    @Primary
     ReactiveRedisConnectionFactory createRedisConnectionFactory() {
         LettuceClientConfiguration clientConfiguration;
         boolean useSsl = attributes.getBoolean("useSsl");
@@ -271,13 +273,15 @@ public class CacheConfig implements ImportAware {
      * Creates the redis template.
      *
      * @param <T> the generic type
+     * @param reactiveRedisConnectionFactory The reactive redis
      * @return the reactive redis template
      */
     @Bean
-    @ConditionalOnMissingBean
+    @Primary
     @SuppressWarnings("unchecked")
-    <T> ReactiveRedisTemplate<String, T> createRedisTemplate() {
-
+    <T> ReactiveRedisTemplate<String, T> createRedisTemplate(@Qualifier("reactiveRedis")
+                                                             ReactiveRedisConnectionFactory
+                                                                     reactiveRedisConnectionFactory) {
         ObjectMapperConfig mapperConfig = getObjectMapperConfig();
         CustomJackson2JsonRedisSerializer<T> jsonSerializer = new CustomJackson2JsonRedisSerializer<>(
                 mapperConfig.configure(), (Class<T>) Object.class);
@@ -291,7 +295,7 @@ public class CacheConfig implements ImportAware {
                 .hashValue(jsonSerializer)
                 .build();
 
-        return new ReactiveRedisTemplate<>(createRedisConnectionFactory(), serializationContext);
+        return new ReactiveRedisTemplate<>(reactiveRedisConnectionFactory, serializationContext);
     }
 
     /**

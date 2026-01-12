@@ -112,7 +112,6 @@ class CacheConfigTest {
 
 		assertNotNull(config);
 		assertEquals(3, config.getClusterNodes().size());
-		assertEquals(3, config.getMaxRedirects());
 	}
 
 	/**
@@ -325,7 +324,7 @@ class CacheConfigTest {
 
 		cacheConfig.setImportMetadata(mockMetadata);
 
-		ReactiveRedisTemplate<String, Object> template = cacheConfig.createRedisTemplate();
+		ReactiveRedisTemplate<String, Object> template = cacheConfig.createRedisTemplate(cacheConfig.createRedisConnectionFactory());
 
 		assertNotNull(template);
 		assertNotNull(template.getConnectionFactory());
@@ -578,7 +577,7 @@ class CacheConfigTest {
 
 		cacheConfig.setImportMetadata(mockMetadata);
 
-		ReactiveRedisTemplate<String, Object> template = cacheConfig.createRedisTemplate();
+		ReactiveRedisTemplate<String, Object> template = cacheConfig.createRedisTemplate(cacheConfig.createRedisConnectionFactory());
 		RedisCacheService service = cacheConfig.redisCacheService(template);
 
 		assertNotNull(service);
@@ -604,7 +603,7 @@ class CacheConfigTest {
 
 		cacheConfig.setImportMetadata(mockMetadata);
 
-		ReactiveRedisTemplate<String, Object> template = cacheConfig.createRedisTemplate();
+		ReactiveRedisTemplate<String, Object> template = cacheConfig.createRedisTemplate(cacheConfig.createRedisConnectionFactory());
 		RedisHealthChecker checker = cacheConfig.redisHealthChecker(template);
 
 		assertNotNull(checker);
@@ -630,11 +629,55 @@ class CacheConfigTest {
 
 		cacheConfig.setImportMetadata(mockMetadata);
 
-		ReactiveRedisTemplate<String, Object> template = cacheConfig.createRedisTemplate();
+		ReactiveRedisTemplate<String, Object> template = cacheConfig.createRedisTemplate(cacheConfig.createRedisConnectionFactory());
 		RedisCacheService service = cacheConfig.redisCacheService(template);
 		CacheOperationBuilder.Factory factory = cacheConfig.cacheOperationBuilderFactory(service);
 
 		assertNotNull(factory);
+	}
+
+	/**
+	 * Create ttl without metadata throws exception.
+	 */
+	@Test
+	void createTtl_WithoutMetadata_ThrowsException() {
+		CacheConfig uninitializedConfig = new CacheConfig();
+
+		assertThrows(NullPointerException.class,
+				() -> uninitializedConfig.createTtl());
+	}
+
+	/**
+	 * Create standalone config without metadata throws exception.
+	 */
+	@Test
+	void createStandaloneConfig_WithoutMetadata_ThrowsException() {
+		CacheConfig uninitializedConfig = new CacheConfig();
+
+		assertThrows(NullPointerException.class,
+				() -> uninitializedConfig.createStandaloneConfig());
+	}
+
+	/**
+	 * Create cluster config without metadata throws exception.
+	 */
+	@Test
+	void createClusterConfig_WithoutMetadata_ThrowsException() {
+		CacheConfig uninitializedConfig = new CacheConfig();
+
+		assertThrows(NullPointerException.class,
+				() -> uninitializedConfig.createClusterConfig());
+	}
+
+	/**
+	 * Create sentinel config without metadata throws exception.
+	 */
+	@Test
+	void createSentinelConfig_WithoutMetadata_ThrowsException() {
+		CacheConfig uninitializedConfig = new CacheConfig();
+
+		assertThrows(NullPointerException.class,
+				() -> uninitializedConfig.createSentinelConfig());
 	}
 
 	/**

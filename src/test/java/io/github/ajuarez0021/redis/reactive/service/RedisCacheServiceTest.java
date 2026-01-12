@@ -15,6 +15,8 @@ import reactor.test.StepVerifier;
 import java.time.Duration;
 import java.util.function.Supplier;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -420,6 +422,161 @@ class RedisCacheServiceTest {
 
         when(redisTemplate.scan(any(ScanOptions.class)))
                 .thenReturn(Flux.empty());
+
+        StepVerifier.create(cacheService.cacheEvictAll(cacheName))
+                .verifyComplete();
+    }
+
+    /**
+     * Cache evict multiple with null array returns empty.
+     */
+    @Test
+    void cacheEvictMultiple_WithNullArray_ReturnsEmpty() {
+        String cacheName = "users";
+        String[] keys = null;
+
+        StepVerifier.create(cacheService.cacheEvictMultiple(cacheName, keys))
+                .verifyComplete();
+
+        verify(redisTemplate, never()).delete(any(String[].class));
+    }
+
+    /**
+     * Cache evict multiple with empty array returns empty.
+     */
+    @Test
+    void cacheEvictMultiple_WithEmptyArray_ReturnsEmpty() {
+        String cacheName = "users";
+        String[] keys = {};
+
+        StepVerifier.create(cacheService.cacheEvictMultiple(cacheName, keys))
+                .verifyComplete();
+
+        verify(redisTemplate, never()).delete(any(String[].class));
+    }
+
+    /**
+     * Cache evict multiple with null element throws exception.
+     */
+    @Test
+    void cacheEvictMultiple_WithNullElement_ThrowsException() {
+        String cacheName = "users";
+        String[] keys = {"user1", null, "user3"};
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> cacheService.cacheEvictMultiple(cacheName, keys)
+        );
+
+        assertEquals("keys array cannot contain null elements", exception.getMessage());
+        verify(redisTemplate, never()).delete(any(String[].class));
+    }
+
+    /**
+     * Cache evict multiple with error handles gracefully.
+     */
+    @Test
+    void cacheEvictMultiple_WithError_HandlesGracefully() {
+        String cacheName = "users";
+        String[] keys = {"user1", "user2"};
+
+        when(redisTemplate.delete(any(String[].class)))
+                .thenReturn(Mono.error(new RuntimeException("Redis error")));
+
+        StepVerifier.create(cacheService.cacheEvictMultiple(cacheName, keys))
+                .verifyComplete();
+
+        verify(redisTemplate).delete(any(String[].class));
+    }
+
+    /**
+     * Cache evict by pattern with error handles gracefully.
+     */
+    @Test
+    void cacheEvictByPattern_WithError_HandlesGracefully() {
+        String pattern = "users:*";
+
+        when(redisTemplate.scan(any(ScanOptions.class)))
+                .thenReturn(Flux.error(new RuntimeException("Redis error")));
+
+        StepVerifier.create(cacheService.cacheEvictByPattern(pattern))
+                .verifyComplete();
+    }
+
+    /**
+     * Exists with error returns false.
+     */
+    @Test
+    void exists_WithError_ReturnsFalse() {
+        String cacheName = "users";
+        String key = "user1";
+
+        when(redisTemplate.hasKey("users:user1"))
+                .thenReturn(Mono.error(new RuntimeException("Redis error")));
+
+        StepVerifier.create(cacheService.exists(cacheName, key))
+                .expectNext(false)
+                .verifyComplete();
+    }
+
+    /**
+     * Cache evict by pattern with empty result handles gracefully.
+     */
+    @Test
+    void cacheEvictByPattern_WithEmptyResult_HandlesGracefully() {
+        String pattern = "users:*";
+
+        when(redisTemplate.scan(any(ScanOptions.class)))
+                .thenReturn(Flux.empty());
+
+        StepVerifier.create(cacheService.cacheEvictByPattern(pattern))
+                .verifyComplete();
+    }
+
+    /**
+     * Cache put with error falls back to loader.
+     */
+    @Test
+    void cachePut_WithError_FallsBackToLoader() {
+        String cacheName = "users";
+        String key = "user1";
+        String newValue = "Jane Doe";
+        Supplier<Mono<String>> loader = () -> Mono.just(newValue);
+
+        when(valueOperations.set("users:user1", newValue, Duration.ofMinutes(10)))
+                .thenReturn(Mono.error(new RuntimeException("Redis error")));
+
+        StepVerifier.create(cacheService.cachePut(cacheName, key, loader, Duration.ofMinutes(10)))
+                .expectNext(newValue)
+                .verifyComplete();
+    }
+
+    /**
+     * Cache evict with error handles gracefully.
+     */
+    @Test
+    void cacheEvict_WithError_HandlesGracefully() {
+        String cacheName = "users";
+        String key = "user1";
+
+        when(redisTemplate.delete("users:user1"))
+                .thenReturn(Mono.error(new RuntimeException("Redis error")));
+
+        StepVerifier.create(cacheService.cacheEvict(cacheName, key))
+                .verifyComplete();
+
+        verify(redisTemplate).delete("users:user1");
+    }
+
+    /**
+     * Cache evict all with error handles gracefully.
+     */
+    @Test
+    void cacheEvictAll_WithError_HandlesGracefully() {
+        String cacheName = "users";
+
+        when(redisTemplate.scan(any(ScanOptions.class)))
+                .thenReturn(Flux.error(new RuntimeException("Redis error")));
 
         StepVerifier.create(cacheService.cacheEvictAll(cacheName))
                 .verifyComplete();

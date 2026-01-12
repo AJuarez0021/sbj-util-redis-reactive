@@ -148,19 +148,43 @@ public final class CacheOperationBuilder <T> {
     /**
      * Cache put.
      *
+     * <p>Executes the loader and stores the result in the cache, regardless of whether
+     * a cached value already exists. This is equivalent to {@code @CachePut}.</p>
+     *
      * @return mono of the cached value
+     * @throws IllegalStateException if cacheName, key, or loader are not set
      */
     public Mono<T> cachePut() {
+        Validator.validateRequiredFields(cacheName, key, loader);
         return cacheService.cachePut(cacheName, key, loader, ttl);
     }
 
     /**
      * Cache evict.
      *
+     * <p>Removes a specific entry from the cache. This is equivalent to
+     * {@code @CacheEvict}.</p>
+     *
      * @return mono indicating completion
+     * @throws IllegalStateException if cacheName or key are not set
      */
     public Mono<Void> cacheEvict() {
+        Validator.validateCacheNameAndKey(cacheName, key);
         return cacheService.cacheEvict(cacheName, key);
+    }
+
+    /**
+     * Cache evict all.
+     *
+     * <p>Removes all entries from the specified cache. This is equivalent to
+     * {@code @CacheEvict(allEntries = true)}.</p>
+     *
+     * @return mono indicating completion
+     * @throws IllegalStateException if cacheName is not set
+     */
+    public Mono<Void> cacheEvictAll() {
+        Validator.validateCacheEvict(cacheName);
+        return cacheService.cacheEvictAll(cacheName);
     }
 
     /**

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * The Class ReactiveCacheManager.
@@ -21,8 +22,8 @@ public class ReactiveCacheManager {
      * @param name the name
      * @return the ttl
      */
-    public Long getTTL(String name) {
-        return ttlEntries.get(name);
+    public Optional<Long> getTTL(String name) {
+        return Optional.ofNullable(ttlEntries.get(name));
     }
 
     /**

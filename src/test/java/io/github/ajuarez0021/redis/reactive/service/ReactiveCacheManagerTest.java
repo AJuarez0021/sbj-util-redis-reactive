@@ -40,9 +40,9 @@ class ReactiveCacheManagerTest {
     @Test
     void getTTL_ReturnsConfiguredTTL() {
         // When
-        Long usersTTL = cacheManager.getTTL("users");
-        Long productsTTL = cacheManager.getTTL("products");
-        Long ordersTTL = cacheManager.getTTL("orders");
+        Long usersTTL = cacheManager.getTTL("users").get();
+        Long productsTTL = cacheManager.getTTL("products").get();
+        Long ordersTTL = cacheManager.getTTL("orders").get();
 
         // Then
         assertEquals(30L, usersTTL);
@@ -56,12 +56,12 @@ class ReactiveCacheManagerTest {
      * @return the TT L with non existent cache returns null
      */
     @Test
-    void getTTL_WithNonExistentCache_ReturnsNull() {
+    void getTTL_WithNonExistentCache_ReturnsEmpty() {
         // When
-        Long ttl = cacheManager.getTTL("nonexistent");
+        var ttl = cacheManager.getTTL("nonexistent");
 
         // Then
-        assertNull(ttl);
+        assertTrue(ttl.isEmpty());
     }
 
     /**
@@ -119,11 +119,11 @@ class ReactiveCacheManagerTest {
         ReactiveCacheManager emptyCacheManager = new ReactiveCacheManager(new HashMap<>());
 
         // When
-        Long ttl = emptyCacheManager.getTTL("anyCache");
+        var ttl = emptyCacheManager.getTTL("anyCache");
         Long ttlOrDefault = emptyCacheManager.getTTLOrDefault("anyCache", 20L);
 
         // Then
-        assertNull(ttl);
+        assertTrue(ttl.isEmpty());
         assertEquals(20L, ttlOrDefault);
     }
 
@@ -140,13 +140,50 @@ class ReactiveCacheManagerTest {
         ReactiveCacheManager managerWithNull = new ReactiveCacheManager(entriesWithNull);
 
         // When
-        Long ttl1 = managerWithNull.getTTL("cache1");
-        Long ttl2 = managerWithNull.getTTL("cache2");
+        Long ttl1 = managerWithNull.getTTL("cache1").orElse(null);
+        var ttl2 = managerWithNull.getTTL("cache2");
         Long ttl3 = managerWithNull.getTTLOrDefault("cache2", 15L);
 
         // Then
         assertEquals(25L, ttl1);
-        assertNull(ttl2);
+        assertTrue(ttl2.isEmpty()); // Optional.ofNullable(null) returns empty Optional
         assertNull(ttl3); // getOrDefault returns null if value is explicitly null
+    }
+
+    /**
+     * Gets the TTL with optional API demonstrates proper usage patterns.
+     */
+    @Test
+    void getTTL_WithOptionalAPI_DemonstratesProperUsagePatterns() {
+        // Test 1: Using orElse for default values
+        Long ttlWithDefault = cacheManager.getTTL("users").orElse(10L);
+        assertEquals(30L, ttlWithDefault);
+
+        Long ttlWithDefaultForMissing = cacheManager.getTTL("nonexistent").orElse(10L);
+        assertEquals(10L, ttlWithDefaultForMissing);
+
+        // Test 2: Using isPresent/isEmpty for conditional logic
+        assertTrue(cacheManager.getTTL("products").isPresent());
+        assertFalse(cacheManager.getTTL("nonexistent").isPresent());
+
+        // Test 3: Using ifPresent for side effects
+        var executionFlag = new boolean[]{false};
+        cacheManager.getTTL("orders").ifPresent(ttl -> {
+            executionFlag[0] = true;
+            assertEquals(15L, ttl);
+        });
+        assertTrue(executionFlag[0]);
+
+        // Test 4: Using orElseThrow for cases where value must exist
+        Long requiredTtl = cacheManager.getTTL("users")
+            .orElseThrow(() -> new IllegalStateException("Users cache TTL must be configured"));
+        assertEquals(30L, requiredTtl);
+
+        // Test 5: Verify empty Optional doesn't throw when used properly
+        assertDoesNotThrow(() -> {
+            cacheManager.getTTL("nonexistent").ifPresent(ttl -> {
+                fail("Should not execute for empty Optional");
+            });
+        });
     }
 }

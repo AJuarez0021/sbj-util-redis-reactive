@@ -66,7 +66,7 @@ public class CustomJackson2JsonRedisSerializer<T> implements RedisSerializer<T> 
             if (bytes == null || bytes.length == 0) {
                 return null;
             }
-            return objectMapper.readValue(bytes, type);
+            return objectMapper.readValue(bytes, objectMapper.constructType(type));
         } catch (Exception ex) {
             throw new SerializationException("Error deserializing", ex);
         }

@@ -3,6 +3,7 @@ package io.github.ajuarez0021.redis.reactive.service;
 
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import io.github.ajuarez0021.redis.reactive.util.Validator;
@@ -98,6 +99,7 @@ public class RedisCacheService {
      * @return the mono object
      */
     public <T> Mono<T> cachePut(String cacheName, String key, Supplier<Mono<T>> loader, Duration ttl) {
+        Validator.validateCacheable(cacheName, key, loader, ttl);
         String fullKey = buildKey(cacheName, key);
 
         return loader.get()
@@ -140,6 +142,8 @@ public class RedisCacheService {
      * @return mono indicating completion
      */
     public Mono<Void> cacheEvict(String cacheName, String key) {
+        Validator.validateCacheEvict(cacheName, key);
+
         String fullKey = buildKey(cacheName, key);
 
         return redisTemplate.delete(fullKey)
@@ -164,6 +168,8 @@ public class RedisCacheService {
      * @return mono indicating completion
      */
     public Mono<Void> cacheEvictAll(String cacheName) {
+        Validator.validateCacheEvict(cacheName);
+
         String pattern = cacheName + ":*";
 
         ScanOptions options = ScanOptions.scanOptions()
@@ -197,6 +203,17 @@ public class RedisCacheService {
      * @return mono indicating completion
      */
     public Mono<Void> cacheEvictMultiple(String cacheName, String... keys) {
+        Validator.validateCacheEvict(cacheName);
+
+        if (keys == null || keys.length == 0) {
+            log.debug("No keys to evict");
+            return Mono.empty();
+        }
+
+        if (Arrays.stream(keys).anyMatch(Objects::isNull)) {
+            throw new IllegalArgumentException("keys array cannot contain null elements");
+        }
+
         String[] fullKeys = Arrays.stream(keys)
                 .map(key -> buildKey(cacheName, key))
                 .toArray(String[]::new);

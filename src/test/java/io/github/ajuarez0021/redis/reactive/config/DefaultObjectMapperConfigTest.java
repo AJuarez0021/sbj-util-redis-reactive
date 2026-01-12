@@ -2,6 +2,8 @@ package io.github.ajuarez0021.redis.reactive.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import lombok.Getter;
+import lombok.Setter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -85,7 +87,10 @@ class DefaultObjectMapperConfigTest {
      */
     @Test
     void configure_DoesNotFailOnUnknownProperties() throws Exception {
-        String json = "{\"knownField\":\"value\",\"unknownField\":\"should not fail\"}";
+        String json =
+          """
+            {"@class":"io.github.ajuarez0021.redis.reactive.config.DefaultObjectMapperConfigTest$TestSimpleObject","knownField":"value","unknownField":"should not fail"}
+          """;
 
         assertDoesNotThrow(() -> objectMapper.readValue(json, TestSimpleObject.class));
     }
@@ -109,7 +114,9 @@ class DefaultObjectMapperConfigTest {
      */
     @Test
     void configure_AcceptsSingleValueAsArray() throws Exception {
-        String json = "{\"values\":\"single_value\"}";
+        String json = """
+           {"@class":"io.github.ajuarez0021.redis.reactive.config.DefaultObjectMapperConfigTest$TestObjectWithArray","values":"single_value"}
+         """;
 
         TestObjectWithArray obj = objectMapper.readValue(json, TestObjectWithArray.class);
 
@@ -121,9 +128,21 @@ class DefaultObjectMapperConfigTest {
     /**
      * The Class TestObject.
      */
+    @Setter
+    @Getter
     static class TestObject {
         
-        /** The date time. */
+        /** The date time.
+         * -- GETTER --
+         *  Gets the date time.
+         *
+         *
+         * -- SETTER --
+         *  Sets the date time.
+         *
+         @return the date time
+          * @param dateTime the new date time
+         */
         private LocalDateTime dateTime;
 
         /**
@@ -140,31 +159,26 @@ class DefaultObjectMapperConfigTest {
             this.dateTime = dateTime;
         }
 
-        /**
-         * Gets the date time.
-         *
-         * @return the date time
-         */
-        public LocalDateTime getDateTime() {
-            return dateTime;
-        }
-
-        /**
-         * Sets the date time.
-         *
-         * @param dateTime the new date time
-         */
-        public void setDateTime(LocalDateTime dateTime) {
-            this.dateTime = dateTime;
-        }
     }
 
     /**
      * The Class TestObjectWithOptional.
      */
+    @Setter
+    @Getter
     static class TestObjectWithOptional {
         
-        /** The optional value. */
+        /** The optional value.
+         * -- GETTER --
+         *  Gets the optional value.
+         *
+         *
+         * -- SETTER --
+         *  Sets the optional value.
+         *
+         @return the optional value
+          * @param optionalValue the new optional value
+         */
         private Optional<String> optionalValue;
 
         /**
@@ -181,50 +195,28 @@ class DefaultObjectMapperConfigTest {
             this.optionalValue = optionalValue;
         }
 
-        /**
-         * Gets the optional value.
-         *
-         * @return the optional value
-         */
-        public Optional<String> getOptionalValue() {
-            return optionalValue;
-        }
-
-        /**
-         * Sets the optional value.
-         *
-         * @param optionalValue the new optional value
-         */
-        public void setOptionalValue(Optional<String> optionalValue) {
-            this.optionalValue = optionalValue;
-        }
     }
 
     /**
      * The Class TestSimpleObject.
      */
+    @Setter
+    @Getter
     static class TestSimpleObject {
         
-        /** The known field. */
+        /** The known field.
+         * -- GETTER --
+         *  Gets the known field.
+         *
+         *
+         * -- SETTER --
+         *  Sets the known field.
+         *
+         @return the known field
+          * @param knownField the new known field
+         */
         private String knownField;
 
-        /**
-         * Gets the known field.
-         *
-         * @return the known field
-         */
-        public String getKnownField() {
-            return knownField;
-        }
-
-        /**
-         * Sets the known field.
-         *
-         * @param knownField the new known field
-         */
-        public void setKnownField(String knownField) {
-            this.knownField = knownField;
-        }
     }
 
     /**
@@ -237,27 +229,22 @@ class DefaultObjectMapperConfigTest {
     /**
      * The Class TestObjectWithArray.
      */
+    @Setter
+    @Getter
     static class TestObjectWithArray {
         
-        /** The values. */
+        /** The values.
+         * -- GETTER --
+         *  Gets the values.
+         *
+         *
+         * -- SETTER --
+         *  Sets the values.
+         *
+         @return the values
+          * @param values the new values
+         */
         private String[] values;
 
-        /**
-         * Gets the values.
-         *
-         * @return the values
-         */
-        public String[] getValues() {
-            return values;
-        }
-
-        /**
-         * Sets the values.
-         *
-         * @param values the new values
-         */
-        public void setValues(String[] values) {
-            this.values = values;
-        }
     }
 }

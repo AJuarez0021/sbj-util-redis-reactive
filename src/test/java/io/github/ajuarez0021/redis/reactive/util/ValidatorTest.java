@@ -2,7 +2,9 @@ package io.github.ajuarez0021.redis.reactive.util;
 
 import io.github.ajuarez0021.redis.reactive.dto.HostsDto;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.annotation.AnnotationAttributes;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
@@ -420,5 +422,501 @@ class ValidatorTest {
                 () -> Validator.validateRequiredFields(cacheName, key, loader)
         );
         assertEquals("loader is required", exception.getMessage());
+    }
+
+    /**
+     * Validate cache name and key valid no exception.
+     */
+    @Test
+    void validateCacheNameAndKey_Valid_NoException() {
+        String cacheName = "users";
+        String key = "user1";
+
+        assertDoesNotThrow(() -> Validator.validateCacheNameAndKey(cacheName, key));
+    }
+
+    /**
+     * Validate cache name and key null cache name throws exception.
+     */
+    @Test
+    void validateCacheNameAndKey_NullCacheName_ThrowsException() {
+        String cacheName = null;
+        String key = "user1";
+
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> Validator.validateCacheNameAndKey(cacheName, key)
+        );
+        assertEquals("cacheName is required", exception.getMessage());
+    }
+
+    /**
+     * Validate cache name and key empty cache name throws exception.
+     */
+    @Test
+    void validateCacheNameAndKey_EmptyCacheName_ThrowsException() {
+        String cacheName = "";
+        String key = "user1";
+
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> Validator.validateCacheNameAndKey(cacheName, key)
+        );
+        assertEquals("cacheName is required", exception.getMessage());
+    }
+
+    /**
+     * Validate cache name and key null key throws exception.
+     */
+    @Test
+    void validateCacheNameAndKey_NullKey_ThrowsException() {
+        String cacheName = "users";
+        String key = null;
+
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> Validator.validateCacheNameAndKey(cacheName, key)
+        );
+        assertEquals("key is required", exception.getMessage());
+    }
+
+    /**
+     * Validate cache name and key empty key throws exception.
+     */
+    @Test
+    void validateCacheNameAndKey_EmptyKey_ThrowsException() {
+        String cacheName = "users";
+        String key = "";
+
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> Validator.validateCacheNameAndKey(cacheName, key)
+        );
+        assertEquals("key is required", exception.getMessage());
+    }
+
+    /**
+     * Validate TTL valid no exception.
+     */
+    @Test
+    void validateTTL_Valid_NoException() {
+        String cacheName = "users";
+        Long ttl = 3600L;
+
+        assertDoesNotThrow(() -> Validator.validateTTL(cacheName, ttl));
+    }
+
+    /**
+     * Validate TTL null cache name throws exception.
+     */
+    @Test
+    void validateTTL_NullCacheName_ThrowsException() {
+        String cacheName = null;
+        Long ttl = 3600L;
+
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> Validator.validateTTL(cacheName, ttl)
+        );
+        assertEquals("cacheName is required", exception.getMessage());
+    }
+
+    /**
+     * Validate TTL empty cache name throws exception.
+     */
+    @Test
+    void validateTTL_EmptyCacheName_ThrowsException() {
+        String cacheName = "   ";
+        Long ttl = 3600L;
+
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> Validator.validateTTL(cacheName, ttl)
+        );
+        assertEquals("cacheName is required", exception.getMessage());
+    }
+
+    /**
+     * Validate TTL null ttl throws exception.
+     */
+    @Test
+    void validateTTL_NullTTL_ThrowsException() {
+        String cacheName = "users";
+        Long ttl = null;
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> Validator.validateTTL(cacheName, ttl)
+        );
+        assertEquals("ttl must be positive", exception.getMessage());
+    }
+
+    /**
+     * Validate TTL zero ttl throws exception.
+     */
+    @Test
+    void validateTTL_ZeroTTL_ThrowsException() {
+        String cacheName = "users";
+        Long ttl = 0L;
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> Validator.validateTTL(cacheName, ttl)
+        );
+        assertEquals("ttl must be positive", exception.getMessage());
+    }
+
+    /**
+     * Validate TTL negative ttl throws exception.
+     */
+    @Test
+    void validateTTL_NegativeTTL_ThrowsException() {
+        String cacheName = "users";
+        Long ttl = -1L;
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> Validator.validateTTL(cacheName, ttl)
+        );
+        assertEquals("ttl must be positive", exception.getMessage());
+    }
+
+    /**
+     * Validate cacheable valid no exception.
+     */
+    @Test
+    void validateCacheable_Valid_NoException() {
+        String cacheName = "users";
+        String key = "user1";
+        Supplier<String> loader = () -> "value";
+        Duration ttl = Duration.ofMinutes(10);
+
+        assertDoesNotThrow(() -> Validator.validateCacheable(cacheName, key, loader, ttl));
+    }
+
+    /**
+     * Validate cacheable null ttl throws exception.
+     */
+    @Test
+    void validateCacheable_NullTTL_ThrowsException() {
+        String cacheName = "users";
+        String key = "user1";
+        Supplier<String> loader = () -> "value";
+        Duration ttl = null;
+
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> Validator.validateCacheable(cacheName, key, loader, ttl)
+        );
+        assertEquals("ttl is required", exception.getMessage());
+    }
+
+    /**
+     * Validate cacheable zero ttl throws exception.
+     */
+    @Test
+    void validateCacheable_ZeroTTL_ThrowsException() {
+        String cacheName = "users";
+        String key = "user1";
+        Supplier<String> loader = () -> "value";
+        Duration ttl = Duration.ZERO;
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> Validator.validateCacheable(cacheName, key, loader, ttl)
+        );
+        assertEquals("ttl must be positive", exception.getMessage());
+    }
+
+    /**
+     * Validate cacheable negative ttl throws exception.
+     */
+    @Test
+    void validateCacheable_NegativeTTL_ThrowsException() {
+        String cacheName = "users";
+        String key = "user1";
+        Supplier<String> loader = () -> "value";
+        Duration ttl = Duration.ofMinutes(-1);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> Validator.validateCacheable(cacheName, key, loader, ttl)
+        );
+        assertEquals("ttl must be positive", exception.getMessage());
+    }
+
+    /**
+     * Validate cacheable cache name with colon throws exception.
+     */
+    @Test
+    void validateCacheable_CacheNameWithColon_ThrowsException() {
+        String cacheName = "users:cache";
+        String key = "user1";
+        Supplier<String> loader = () -> "value";
+        Duration ttl = Duration.ofMinutes(10);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> Validator.validateCacheable(cacheName, key, loader, ttl)
+        );
+        assertEquals("cacheName cannot contain ':' or '*' characters", exception.getMessage());
+    }
+
+    /**
+     * Validate cacheable cache name with asterisk throws exception.
+     */
+    @Test
+    void validateCacheable_CacheNameWithAsterisk_ThrowsException() {
+        String cacheName = "users*";
+        String key = "user1";
+        Supplier<String> loader = () -> "value";
+        Duration ttl = Duration.ofMinutes(10);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> Validator.validateCacheable(cacheName, key, loader, ttl)
+        );
+        assertEquals("cacheName cannot contain ':' or '*' characters", exception.getMessage());
+    }
+
+    /**
+     * Validate cacheable key with colon throws exception.
+     */
+    @Test
+    void validateCacheable_KeyWithColon_ThrowsException() {
+        String cacheName = "users";
+        String key = "user:1";
+        Supplier<String> loader = () -> "value";
+        Duration ttl = Duration.ofMinutes(10);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> Validator.validateCacheable(cacheName, key, loader, ttl)
+        );
+        assertEquals("key cannot contain '*' character", exception.getMessage());
+    }
+
+    /**
+     * Validate cacheable key with asterisk throws exception.
+     */
+    @Test
+    void validateCacheable_KeyWithAsterisk_ThrowsException() {
+        String cacheName = "users";
+        String key = "user*";
+        Supplier<String> loader = () -> "value";
+        Duration ttl = Duration.ofMinutes(10);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> Validator.validateCacheable(cacheName, key, loader, ttl)
+        );
+        assertEquals("key cannot contain '*' character", exception.getMessage());
+    }
+
+    /**
+     * Validate cache evict with key valid no exception.
+     */
+    @Test
+    void validateCacheEvict_WithKey_Valid_NoException() {
+        String cacheName = "users";
+        String key = "user1";
+
+        assertDoesNotThrow(() -> Validator.validateCacheEvict(cacheName, key));
+    }
+
+    /**
+     * Validate cache evict with key null cache name throws exception.
+     */
+    @Test
+    void validateCacheEvict_WithKey_NullCacheName_ThrowsException() {
+        String cacheName = null;
+        String key = "user1";
+
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> Validator.validateCacheEvict(cacheName, key)
+        );
+        assertEquals("cacheName is required", exception.getMessage());
+    }
+
+    /**
+     * Validate cache evict with key empty cache name throws exception.
+     */
+    @Test
+    void validateCacheEvict_WithKey_EmptyCacheName_ThrowsException() {
+        String cacheName = "   ";
+        String key = "user1";
+
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> Validator.validateCacheEvict(cacheName, key)
+        );
+        assertEquals("cacheName is required", exception.getMessage());
+    }
+
+    /**
+     * Validate cache evict with key null key throws exception.
+     */
+    @Test
+    void validateCacheEvict_WithKey_NullKey_ThrowsException() {
+        String cacheName = "users";
+        String key = null;
+
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> Validator.validateCacheEvict(cacheName, key)
+        );
+        assertEquals("key is required", exception.getMessage());
+    }
+
+    /**
+     * Validate cache evict with key empty key throws exception.
+     */
+    @Test
+    void validateCacheEvict_WithKey_EmptyKey_ThrowsException() {
+        String cacheName = "users";
+        String key = "   ";
+
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> Validator.validateCacheEvict(cacheName, key)
+        );
+        assertEquals("key is required", exception.getMessage());
+    }
+
+    /**
+     * Validate cache evict with key cache name with colon throws exception.
+     */
+    @Test
+    void validateCacheEvict_WithKey_CacheNameWithColon_ThrowsException() {
+        String cacheName = "users:cache";
+        String key = "user1";
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> Validator.validateCacheEvict(cacheName, key)
+        );
+        assertEquals("cacheName cannot contain ':' or '*' characters", exception.getMessage());
+    }
+
+    /**
+     * Validate cache evict with key cache name with asterisk throws exception.
+     */
+    @Test
+    void validateCacheEvict_WithKey_CacheNameWithAsterisk_ThrowsException() {
+        String cacheName = "users*";
+        String key = "user1";
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> Validator.validateCacheEvict(cacheName, key)
+        );
+        assertEquals("cacheName cannot contain ':' or '*' characters", exception.getMessage());
+    }
+
+    /**
+     * Validate cache evict with key key with asterisk throws exception.
+     */
+    @Test
+    void validateCacheEvict_WithKey_KeyWithAsterisk_ThrowsException() {
+        String cacheName = "users";
+        String key = "user*";
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> Validator.validateCacheEvict(cacheName, key)
+        );
+        assertEquals("key cannot contain '*' character", exception.getMessage());
+    }
+
+    /**
+     * Validate cache evict without key valid no exception.
+     */
+    @Test
+    void validateCacheEvict_WithoutKey_Valid_NoException() {
+        String cacheName = "users";
+
+        assertDoesNotThrow(() -> Validator.validateCacheEvict(cacheName));
+    }
+
+    /**
+     * Validate cache evict without key null cache name throws exception.
+     */
+    @Test
+    void validateCacheEvict_WithoutKey_NullCacheName_ThrowsException() {
+        String cacheName = null;
+
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> Validator.validateCacheEvict(cacheName)
+        );
+        assertEquals("cacheName is required", exception.getMessage());
+    }
+
+    /**
+     * Validate cache evict without key empty cache name throws exception.
+     */
+    @Test
+    void validateCacheEvict_WithoutKey_EmptyCacheName_ThrowsException() {
+        String cacheName = "   ";
+
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> Validator.validateCacheEvict(cacheName)
+        );
+        assertEquals("cacheName is required", exception.getMessage());
+    }
+
+    /**
+     * Validate cache evict without key cache name with colon throws exception.
+     */
+    @Test
+    void validateCacheEvict_WithoutKey_CacheNameWithColon_ThrowsException() {
+        String cacheName = "users:cache";
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> Validator.validateCacheEvict(cacheName)
+        );
+        assertEquals("cacheName cannot contain ':' or '*' characters", exception.getMessage());
+    }
+
+    /**
+     * Validate cache evict without key cache name with asterisk throws exception.
+     */
+    @Test
+    void validateCacheEvict_WithoutKey_CacheNameWithAsterisk_ThrowsException() {
+        String cacheName = "users*";
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> Validator.validateCacheEvict(cacheName)
+        );
+        assertEquals("cacheName cannot contain ':' or '*' characters", exception.getMessage());
+    }
+
+    /**
+     * Validate attributes valid no exception.
+     */
+    @Test
+    void validateAttributes_Valid_NoException() {
+        AnnotationAttributes attributes = new AnnotationAttributes();
+
+        assertDoesNotThrow(() -> Validator.validateAttributes(attributes));
+    }
+
+    /**
+     * Validate attributes null throws exception.
+     */
+    @Test
+    void validateAttributes_Null_ThrowsException() {
+        AnnotationAttributes attributes = null;
+
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> Validator.validateAttributes(attributes)
+        );
+        assertTrue(exception.getMessage().contains("Configuration not initialized"));
+        assertTrue(exception.getMessage().contains("@EnableRedisReactiveLibrary"));
     }
 }

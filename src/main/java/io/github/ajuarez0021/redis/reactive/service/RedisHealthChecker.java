@@ -95,6 +95,8 @@ public class RedisHealthChecker {
                         .build();
             }),
 
+            connection -> Mono.fromRunnable(connection::close),
+            (connection, error) -> Mono.fromRunnable(connection::close),
             connection -> Mono.fromRunnable(connection::close)
         )
         .onErrorResume(e -> {

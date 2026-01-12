@@ -1,6 +1,7 @@
 package io.github.ajuarez0021.redis.reactive.util;
 
 import io.github.ajuarez0021.redis.reactive.dto.HostsDto;
+import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.util.StringUtils;
 
 import java.time.Duration;
@@ -137,6 +138,21 @@ public final class Validator {
     }
 
     /**
+     * Validate cache name and key only (for evict operations).
+     *
+     * @param cacheName the cache name
+     * @param key       the key
+     */
+    public static void validateCacheNameAndKey(String cacheName, String key) {
+        if (!StringUtils.hasText(cacheName)) {
+            throw new IllegalStateException("cacheName is required");
+        }
+        if (!StringUtils.hasText(key)) {
+            throw new IllegalStateException("key is required");
+        }
+    }
+
+    /**
      * Validate cacheable.
      *
      * @param <T>       the generic type
@@ -189,10 +205,57 @@ public final class Validator {
                     "cacheName cannot contain ':' or '*' characters"
             );
         }
-        if (key.contains("*")) {
+        if (key.contains(":") || key.contains("*")) {
             throw new IllegalArgumentException(
                     "key cannot contain '*' character"
             );
+        }
+    }
+
+    /**
+     * Validate cache evict parameters.
+     *
+     * @param cacheName the cache name
+     * @param key the key
+     */
+    public static void validateCacheEvict(String cacheName, String key) {
+        if (!StringUtils.hasText(cacheName)) {
+            throw new IllegalStateException("cacheName is required");
+        }
+        if (!StringUtils.hasText(key)) {
+            throw new IllegalStateException("key is required");
+        }
+        validateKeyFormat(cacheName, key);
+    }
+
+    /**
+     * Validate cache name for evict all operations.
+     *
+     * @param cacheName the cache name
+     */
+    public static void validateCacheEvict(String cacheName) {
+        if (!StringUtils.hasText(cacheName)) {
+            throw new IllegalStateException("cacheName is required");
+        }
+        if (cacheName.contains(":") || cacheName.contains("*")) {
+            throw new IllegalArgumentException(
+                    "cacheName cannot contain ':' or '*' characters"
+            );
+        }
+    }
+
+    /**
+     * Validate attributes.
+     *
+     * @param attributes The attributes
+     */
+    public static void validateAttributes(AnnotationAttributes attributes) {
+        if (attributes == null) {
+            throw new IllegalStateException(
+                    """
+                      Configuration not initialized. Ensure @EnableRedisReactiveLibrary annotation
+                      is present on a @Configuration class.
+                    """);
         }
     }
 }
